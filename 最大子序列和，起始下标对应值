@@ -1,0 +1,34 @@
+#include <stdio.h>
+int main()
+{
+    int n, i, flag=0;
+    scanf("%d", &n);
+    int a[n];
+    for(i=0;i<n;i++){
+        scanf("%d", &a[i]);
+    }
+    int maxNum=0,ThisNum=0, start=0, Thisstart=0, end=n-1;
+    
+    for(i=0;i<n;i++){
+        ThisNum+=a[i];
+        if(flag==1){
+            Thisstart=i;
+            flag=0;
+        }
+        if(ThisNum>maxNum ||(ThisNum==maxNum && maxNum==0)){
+            // 符合条件
+            // ThisNum>=maxNum && maxNum==0 这个是为了保证有负数有0的时候输出0 0 0
+            maxNum=ThisNum;
+            start = Thisstart;
+            end = i;
+        }
+        else if(ThisNum<0){
+            // 不符合条件
+            flag=1;
+            ThisNum=0;
+        }
+    }
+    
+    printf("%d %d %d", maxNum, a[start], a[end]);
+    return 0;
+}
