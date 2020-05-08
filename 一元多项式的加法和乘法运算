@@ -1,0 +1,190 @@
+#include<stdio.h>
+#include<stdlib.h>
+typedef struct List List;
+struct List
+{
+	int coe;
+	int index;
+	//int count;
+	List* next;
+};
+void link(int coe, int index, List** rear)
+{
+	List* p1;
+	p1 = (List*)malloc(sizeof(List));
+	p1->coe = coe; p1->index = index;
+	p1->next = NULL;
+	(*rear)->next = p1;
+	(*rear) = p1;
+}
+List* read()
+{
+	int n;
+	scanf("%d", &n);
+	List* head, *rear,*t;/////////////////新建一个头指针head 指向链表的最后一个节点，rear是指向尾节点的指针;，
+	rear = (List*)malloc(sizeof(List));///////////为rear申请一个空节点
+	rear->next = NULL;
+	head= rear;
+	t = rear;///////////////////此时rear既为头节点又为空节点，用t指向这个节点；
+	for (int i=n; i >0; i--)
+	{
+		int coe, index;
+		//p1 = (List*)malloc(sizeof(List));////p1是后续加入链表的节点，
+		//scanf("%d%d", &p1->coe, &p1->index);
+		//p1->next = NULL;
+		//rear->next = p1;/////////////将p1链接再rear的后面,这时p1就成为新的尾节点
+		//rear = p1;/////////////再将为rear指向尾节点p1;
+		scanf("%d%d", &coe, &index);
+		link(coe, index, &rear);
+	}
+	head = t->next;////////////////因为t指向的节点是第一个尾节点，这个节点是空节点，故将头指针head指向后面的节点
+	free(t);/////////////////////释放掉这个节点
+	return head;////////////					//返回头节点									
+}
+void print(List* p)
+{
+	List* t;
+	t = p;
+	int flag = 1;
+	if (!p)
+	{
+		printf("0 0"); return;
+	}
+	while (t)
+	{
+		if (flag)
+			flag = 0;
+		else
+			printf(" ");
+		printf("%d %d", t->coe, t->index);
+		t = t->next;
+	}
+}
+List* add(List* p1, List* p2)
+{
+	List* head, * rear, *p, *t, *l1, *l2;
+	l1 = p1; l2 = p2;
+	rear = (List*)malloc(sizeof(List));
+	rear->next = NULL;
+	head = rear;
+	t = rear;
+	//p = (List*)malloc(sizeof(List));
+	while (l1 && l2)
+	{
+		if (l1->index > l2->index)////////////这三个if语句就是对节点p的赋值过程
+		{
+			link(l1->coe, l1->index, &rear); //p->index = l1->index; link(l1->coe, l1->index, );
+			///p->coe = l1->coe;
+			l1 = l1->next;
+		}
+		else if (l1->index < l2->index)
+		{
+			link(l2->coe, l2->index, &rear); //p->index = l2->index;
+		//	p->coe = l2->coe;
+			l2 = l2->next;
+		}
+		else//(l1->index == l2->index)
+		{
+			if (l1->coe + l2->coe)
+			{
+				link(l1->coe + l2->coe, l1->index, &rear);
+				//p->index = l1->index;
+				//p->coe = l1->coe + l2->coe;
+				l1 = l1->next;
+				l2 = l2->next;
+			}
+			else
+			{
+				l1 = l1->next;
+				l2 = l2->next;
+			}
+			/*p->next = NULL;
+			rear->next = p;
+			rear = p;
+			p = (List*)malloc(sizeof(List));*/
+		}
+	}
+	rear->next = l1 ? l1 : l2;/////////////将p1或p2后面的节点连接到尾节点后
+	head = t->next;
+	free(t);
+	return head;
+}
+List* multiply(List *p1,List *p2)
+{
+	List* head, *rear, *t, *l1, *l2,*k1,*k2;////////t 用来释放空的头节点  k1用来释放为0的节点   k2用来开辟新的节点  
+	int c, e, i, j;
+	l1 = p1; l2 = p2;
+	if (!p2 || !p1) return NULL;
+	rear = (List*)malloc(sizeof(List));
+	rear->next = NULL;
+	head = rear;
+	t = rear;
+	int flag = 1;
+	while (l1)
+	{
+		l2 = p2;rear = head;/////////////每次子循环结束后将l2重新指向头节点p2,指针rear置为头指针
+		while (l2)
+		{	
+			if (flag == 1) ///////////// 循环第一次时将值存入新开辟的节点再连接到rear后面
+			{
+				c = l1->coe * l2->coe;
+				e = l1->index + l2->index;
+				link(c, e, &rear);
+				flag = 0;
+			}
+			else ////////////////////以后的循环都与第一次节点所处的链表，一个一个节点对比
+			{
+					i = l1->coe * l2->coe;
+					j = l1->index + l2->index;
+					while(rear->next && rear->next->index > j)/////////////因为是递减的顺序 这个循环可以找出rear后一个节点大的数
+						rear = rear->next;
+					////此时rear->next->index肯定大于等于j
+					if (rear->next && rear->next->index == j)//////
+					{
+						if (rear->next->coe + i)//////此时为系数不为0的形况   rrrrr
+						{
+							rear->next->coe=i+rear->next->coe;//////////////////rrrr 
+						}
+						else/////////////系数为0则删除这个节点
+						{
+							k1 = rear->next;
+							rear->next = k1->next;
+							free(k1);	
+						}
+					}
+					else  ////////////此时为大于j的情况  这就需要开辟一个新节点来存此时的系数coe和指数index再连接到链表中
+					{
+						if (i)///////////////////此时系数不能为0
+						{
+							k2 = (List*)malloc(sizeof(List));
+							k2->coe = i;
+							k2->index = j;
+							k2->next = rear->next;//////////////新节点的next指向来rear的next
+							rear->next = k2;/////////////////rear的next重新指向新节点
+							//rear = rear->next;///////将rear往后挪一位继续进行判断
+						}
+					}
+			}
+			l2 = l2->next;
+		}
+		l1 = l1->next;
+	}
+	head = t->next;
+	free(t);
+	return head;
+}
+
+int main()
+{
+	List* p1, *p2,*padd,*pmultiply;
+	p1 = read();
+	p2 = read();
+	padd = add(p1, p2);
+	/*print(p1);
+	print(p2);*/
+	pmultiply = multiply(p1, p2);
+	print(pmultiply);
+	printf("\n");
+	print(padd);
+	return 0;
+}
