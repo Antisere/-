@@ -1,0 +1,200 @@
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+
+
+typedef struct list LIST;
+struct list ////定义一个结构体，ad代表当前节点地址；ne代表下个节点地址
+{
+	char ad[6];
+	int s;
+	char ne[6];
+	LIST* next;
+};
+void link(char *ad, int s, char *ne,LIST** rear)///建立一个节点放到rearg后同时rear后移到新建节点p
+{
+	LIST* p;
+	p= (LIST*)malloc(sizeof(LIST));
+	strcpy(p->ad,ad);
+	strcpy(p->ne,ne);
+	p->s = s;
+	p->next = NULL;
+	(*rear)->next = p;
+	(*rear) = p;
+
+}
+LIST* read(int m)//将输入的节点连成一个链表
+{
+	char ad[6], ne[6];
+	int s;
+	LIST* head, *rear,*t;
+	rear = (LIST*)malloc(sizeof(LIST));
+	rear->next = NULL;
+	head = rear;
+	
+	while (m--)
+	{
+		scanf("%s%d%s", ad,&s,ne);
+		link(ad, s, ne, &rear);	
+	}
+	
+	t = head;
+	head = head->next;
+	free(t);
+	return  head;
+}
+LIST* sort(LIST* p1, char ad[6])/////将读入的链表按其储存的ad,ne重新连接；
+{
+	LIST* l1, *l2;
+	l1 = p1;
+	LIST* head, * rear;
+	rear = (LIST*)malloc(sizeof(LIST));
+	strcpy(rear->ne,ad);
+	rear->next = NULL;
+	head = rear;
+	while (1)
+	{
+		while (l1)
+		{
+			if (strcmp(l1->ad,rear->ne)==0)
+			{
+				link(l1->ad, l1->s, l1->ne, &rear);
+			}
+			l1 = l1->next;
+		}
+		l1 = p1;
+		char str[6] = "-1";/////        ne为-1代表链表结束
+		if (strcmp(rear->ne,str)==0)break;////////////注意
+	}
+	l2 = head;
+	head = head->next;
+	return head;
+}
+void insert(char ad[10], int s, char ne[10], LIST** rear1,LIST **rear2)///新建一个节点储存数据并将其插到rear1和rear2中间
+{
+	LIST* p;
+	p = (LIST*)malloc(sizeof(LIST));
+	strcpy(p->ad,ad);
+	strcpy(p->ne,ne);
+	p->s = s;
+	p->next = (*rear2);
+	(*rear1)->next = p;
+	(*rear2) = p;
+	
+
+}
+LIST* result(LIST* p1,int n)//将sort得到的链表再按规定反转
+{
+	int  z,m=0;
+	LIST* l1;
+	l1 = p1;
+	while (l1)//重新确定链表长度m
+	{
+		m++;
+		l1 = l1->next;
+		
+	}
+	l1 = p1;
+	if (m < n) {//////链表长度小于反转长度，全部反转
+		n=m;
+	}
+	if (n == 0 || n == 1)return l1;
+	else
+	{
+		z = m / n;//////////z为需要反转的子链个数
+		int k = n;
+		LIST* head, * rear,*p,*p1;
+		rear = (LIST*)malloc(sizeof(LIST));
+		rear->next= NULL;
+		head = rear;
+		p = rear;
+		p1 = rear;
+		while (z)
+		{
+			int flag = 1;//区分第一次进入循环的情况
+			while (k)
+			{
+				if (flag)///第一次进入循环就将其连接到rear后面
+				{
+					link(l1->ad, l1->s, l1->ne, &rear);
+					p = rear;
+					flag = 0;
+					//printf("%s %d %s\n", p->ad, p->s, p->ne);
+				}
+				else //不是第一次就将其插入到头节点与下一个节点之间
+				{
+					
+					insert(l1->ad, l1->s, l1->ne, &p1, &p);
+					//printf("%s %d %s\n", p->ad, p->s, p->ne);
+				}
+				l1 = l1->next;
+				k--;
+			}
+			z--;
+			if (z!= 0)
+			{
+				k = n;
+				p1 = rear;
+			}
+		
+		}
+		if (l1)///如果l1此时不为空说明当前链表节点不是需要反转节点的整数倍 
+			rear->next = l1;////然后将l1后的节点link到rear后面
+		p = head;
+		head = head->next;///释放空的头节点
+		free(p);
+		return head;
+	}
+}
+void print(LIST* p)//打印链表
+{
+	LIST* p1;
+	p1 = p;
+	while (p1)
+	{
+		printf("%s %d %s", p1->ad, p1->s, p1->ne);
+		printf("\n");
+		p1 = p1->next;
+	}
+
+}
+LIST* daan(LIST* p1, LIST* p2)///将sort中的再次与result得到的整和到sort
+								////主要改变节点的ne,使其对应下一个节点的地址
+{								/////对于最后一个节点将其ne值置为-1代表链表结束下一个指向为null 返回p1
+	LIST *l1, * l2;
+	l1 = p1; l2 = p2;
+	char str[6] = "-1";
+	/*strcpy(l1->ad, l2->ad);
+	l1->s = l2->s;
+	strcpy(l1->ne, l2->next->ad);
+	l1 = l1->next;
+	l2 = l2->next;*/
+
+	while (l2->next)//
+	{
+		l1->s = l2->s;
+		strcpy(l1->ad, l2->ad);
+		strcpy(l1->ne,l2->next->ad);
+		l1 = l1->next;
+		l2 = l2->next;
+	}
+	l1->s = l2->s;
+	strcpy(l1->ad, l2->ad);
+	strcpy(l1->ne, str);
+	return p1;
+}
+int main()
+{
+	LIST* p1, *p2,*p3,*p4;
+	char ad[6];
+	int m, n;
+	scanf("%s%d%d", ad, &m, &n);
+	p1 = read(m);
+	//print(p1);
+	p2 = sort(p1,ad);
+	/*print(p1);*/
+	p3 = result(p2,n);
+	p4 = daan(p2, p3);
+	print(p4);
+	return 0;
+}
