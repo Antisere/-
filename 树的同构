@@ -1,0 +1,78 @@
+#include<stdio.h>
+#include<stdlib.h>
+
+#define maxtree 1000
+#define elem char
+#define tree int 
+#define Null -1
+
+struct treenode {
+ 	elem element;
+ 	tree left,right;
+ }tr1[maxtree],tr2[maxtree];
+ 
+tree buildtree(struct treenode t[])
+ {
+ 	int in,i,check[maxtree],root;
+ 	char cl,cr;
+ 	scanf("%d\n",&in);
+ 	if(in){
+	 	for(i=0;i<in;i++) check[i]=0;
+	 	for(i=0;i<in;i++){
+	 		scanf("%c %c %c\n",&t[i].element,&cl,&cr);
+	 		if(cl!='-'){
+		 		t[i].left=cl-'-';
+		 		check[t[i].left]=1;
+		 	}
+		 	else t[i].left=Null;
+		 	if(cr!='-'){
+		 		t[i].right=cr-'-';
+		 		check[t[i].right]=1;
+		 	}
+		 	else t[i].right=Null;
+	 	}
+	 	for(i=0;i<in;i++)
+	 		if(!check[i]) break;
+ 		root = i;
+	 }
+	 return root;
+ }
+ 
+int issame(tree r1,tree r2){
+	if((r1==Null)&&(r2==Null))
+		return 1;
+	if(((r1==Null)&&(r2!=Null)||((r1!=Null)&&(r2==Null))))
+		return 0;
+	if((tr1[r1].element!=tr2[r2].element))
+		return 0;
+	
+	if((tr1[r1].left==Null)&&(tr2[r2].left==Null))
+		return issame(tr1[r1].right,tr2[r2].right);
+	if((tr1[r1].left!=Null)&&(tr2[r2].left!=Null)){
+		if((tr1[tr1[r1].left].element)==(tr2[tr2[r1].left].element))
+			return (issame(tr1[r1].left,tr2[r2].left)&&issame(tr1[r1].right,tr2[r2].right));
+		else
+			return (issame(tr1[r1].right,tr2[r2].left)&&issame(tr1[r1].left,tr2[r2].right));
+	}
+	else 
+		return (issame(tr1[r1].right,tr2[r2].left)&&issame(tr1[r1].left,tr2[r2].right));
+	}
+
+ 
+ 
+
+ 
+int main()
+{
+ 	tree r1,r2;
+ 	r1 = buildtree(tr1);
+ 	r2 = buildtree(tr2);
+ 	if(issame(r1,r2)) printf("Yes\n");
+ 	else printf("No\n");
+ 	
+ 	return 0;
+ }
+ 
+ 
+ 
+ 
